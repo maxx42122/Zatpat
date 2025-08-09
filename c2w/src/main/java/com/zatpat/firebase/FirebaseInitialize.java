@@ -3,8 +3,10 @@ package com.zatpat.firebase;
 //import java.awt.TextField;
 //import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 //import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 //import java.net.URL;
 //import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,21 +43,27 @@ public class FirebaseInitialize {
     }
 
     public void initialize() {
-        try {
-            if (FirebaseApp.getApps().isEmpty()) {
-                FileInputStream serviceAccount = new FileInputStream(
-                        "D:\\bytecode1\\bytecoder\\c2w\\src\\main\\resources\\maid-provide-project-firebase-adminsdk-3ps2a-6c4a27851d.json");
+       try (InputStream serviceAccount = getClass()
+        .getClassLoader()
+        .getResourceAsStream("maid-provide-project-firebase-adminsdk-3ps2a-414a73a53e.json")) {
 
-                FirebaseOptions options = new FirebaseOptions.Builder()
-                        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                        .setStorageBucket("maid-provide-project.appspot.com") // Set your storage bucket name here
-                        .build();
+    if (serviceAccount == null) {
+        throw new FileNotFoundException("Service account JSON not found in resources folder");
+    }
 
-                FirebaseApp.initializeApp(options);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    FirebaseOptions options = new FirebaseOptions.Builder()
+            .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+            .setStorageBucket("maid-provide-project.appspot.com")
+            .build();
+
+    if (FirebaseApp.getApps().isEmpty()) {
+        FirebaseApp.initializeApp(options);
+    }
+
+} catch (IOException e) {
+    e.printStackTrace();
+}
+
     }
 
     // Register user
